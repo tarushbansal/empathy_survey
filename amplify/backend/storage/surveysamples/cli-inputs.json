@@ -1,0 +1,10 @@
+{
+  "resourceName": "surveysamples",
+  "tableName": "surveysamples",
+  "partitionKey": {
+    "fieldName": "sampleid",
+    "fieldType": "number"
+  },
+  "gsi": [],
+  "triggerFunctions": []
+}
