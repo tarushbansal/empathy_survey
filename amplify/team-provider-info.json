@@ -1,0 +1,29 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-empathysurvey-dev-151807-authRole",
+      "UnauthRoleArn": "arn:aws:iam::856837646583:role/amplify-empathysurvey-dev-151807-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::856837646583:role/amplify-empathysurvey-dev-151807-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-empathysurvey-dev-151807-deployment",
+      "UnauthRoleName": "amplify-empathysurvey-dev-151807-unauthRole",
+      "StackName": "amplify-empathysurvey-dev-151807",
+      "StackId": "arn:aws:cloudformation:us-east-1:856837646583:stack/amplify-empathysurvey-dev-151807/e0da74a0-65c1-11ed-869e-0a2a792f6d77",
+      "AmplifyAppId": "d1n9bqtya6x2o0"
+    },
+    "categories": {
+      "function": {
+        "surveyapi": {
+          "deploymentBucketName": "amplify-empathysurvey-dev-151807-deployment",
+          "s3Key": "amplify-builds/surveyapi-62637a73616676716746-build.zip"
+        }
+      },
+      "storage": {
+        "surveysamples": {}
+      },
+      "api": {
+        "surveyapi": {}
+      }
+    }
+  }
+}

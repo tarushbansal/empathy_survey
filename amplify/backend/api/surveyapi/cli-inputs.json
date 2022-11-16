@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "paths": {
+    "/surveydata": {
+      "name": "/surveydata",
+      "lambdaFunction": "surveyapi",
+      "permissions": {
+        "setting": "open"
+      }
+    }
+  }
+}
