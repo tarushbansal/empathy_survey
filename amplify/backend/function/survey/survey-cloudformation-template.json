@@ -16,13 +16,13 @@
     "s3Key": {
       "Type": "String"
     },
-    "storagesurveysamplesName": {
+    "storagesamplesName": {
       "Type": "String",
-      "Default": "storagesurveysamplesName"
+      "Default": "storagesamplesName"
     },
-    "storagesurveysamplesArn": {
+    "storagesamplesArn": {
       "Type": "String",
-      "Default": "storagesurveysamplesArn"
+      "Default": "storagesamplesArn"
     }
   },
   "Conditions": {
@@ -55,12 +55,12 @@
         "FunctionName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "surveyapi",
+            "survey",
             {
               "Fn::Join": [
                 "",
                 [
-                  "surveyapi",
+                  "survey",
                   "-",
                   {
                     "Ref": "env"
@@ -97,12 +97,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "empathysurveyLambdaRole65589251",
+            "surveyLambdaRoleec5255b2",
             {
               "Fn::Join": [
                 "",
                 [
-                  "empathysurveyLambdaRole65589251",
+                  "surveyLambdaRoleec5255b2",
                   "-",
                   {
                     "Ref": "env"
@@ -182,14 +182,14 @@
               ],
               "Resource": [
                 {
-                  "Ref": "storagesurveysamplesArn"
+                  "Ref": "storagesamplesArn"
                 },
                 {
                   "Fn::Join": [
                     "/",
                     [
                       {
-                        "Ref": "storagesurveysamplesArn"
+                        "Ref": "storagesamplesArn"
                       },
                       "index/*"
                     ]

@@ -15,8 +15,6 @@ AWS.config.update({ region: process.env.TABLE_REGION });
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-const path = "/surveydata";
-
 // Define status codes for survey samples
 const PENDING = 0;
 const IN_PROGRESS = 1;
@@ -38,9 +36,9 @@ app.use(function (req, res, next) {
  * HTTP Get method for retrieving samples
  ****************************************/
 
-app.get(path + "/samples", function (req, res) {
+app.get("/samples", function (req, res) {
   let queryParams = {
-    tableName: sampleTableName,
+    tableName: "samples",
     ProjectionExpression: "sample",
     FilterExpression: `status === ${PENDING}`,
   };
@@ -85,7 +83,7 @@ app.get(path + "/samples", function (req, res) {
  * HTTP post method for adding ratings
  *************************************/
 
-app.post(path + "/surveyratings", function (req, res) {
+app.post("/surveyratings", function (req, res) {
   for (let i = 0; i < req.body.length; i++) {
     const updateItemParams = {
       tableName: sampleTableName,

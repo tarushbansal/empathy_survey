@@ -1,19 +1,33 @@
 {
   "storage": {
-    "surveysamples": {
+    "contexts": {
       "service": "DynamoDB",
-      "providerPlugin": "awscloudformation"
+      "serviceType": "imported",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": []
+    },
+    "models": {
+      "service": "DynamoDB",
+      "serviceType": "imported",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": []
+    },
+    "samples": {
+      "service": "DynamoDB",
+      "serviceType": "imported",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": []
     }
   },
   "function": {
-    "surveyapi": {
+    "survey": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda",
       "dependsOn": [
         {
           "category": "storage",
-          "resourceName": "surveysamples",
+          "resourceName": "samples",
           "attributes": [
             "Name",
             "Arn"
@@ -33,7 +47,7 @@
       "dependsOn": [
         {
           "category": "function",
-          "resourceName": "surveyapi",
+          "resourceName": "survey",
           "attributes": [
             "Name",
             "Arn"

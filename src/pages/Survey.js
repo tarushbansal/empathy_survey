@@ -11,12 +11,14 @@ Amplify.configure(config);
 export default class Survey extends Component {
   constructor(props) {
     super(props);
-    this.samples = API.get("surveyapi", "/samples").then(() => {
-      this.ratings = this.samples.map((sample) => ({
-        id: sample.id,
-        ratings: [0, 0, 0],
-      }));
-    });
+    this.samples = API.get("surveyapi", "/samples")
+      .then(() => {
+        this.ratings = this.samples.map((sample) => ({
+          id: sample.id,
+          ratings: [0, 0, 0],
+        }));
+      })
+      .catch((err) => console.error(err.response.data));
   }
 
   submitResponses() {

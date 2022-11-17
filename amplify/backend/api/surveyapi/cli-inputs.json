@@ -1,9 +1,9 @@
 {
   "version": 1,
   "paths": {
-    "/surveydata": {
-      "name": "/surveydata",
-      "lambdaFunction": "surveyapi",
+    "/samples": {
+      "name": "/samples",
+      "lambdaFunction": "survey",
       "permissions": {
         "setting": "open"
       }

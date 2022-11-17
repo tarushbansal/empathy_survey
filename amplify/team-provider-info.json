@@ -1,25 +1,45 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-empathysurvey-dev-151807-authRole",
-      "UnauthRoleArn": "arn:aws:iam::856837646583:role/amplify-empathysurvey-dev-151807-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::856837646583:role/amplify-empathysurvey-dev-151807-authRole",
+      "AuthRoleName": "amplify-survey-dev-144945-authRole",
+      "UnauthRoleArn": "arn:aws:iam::856837646583:role/amplify-survey-dev-144945-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::856837646583:role/amplify-survey-dev-144945-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-empathysurvey-dev-151807-deployment",
-      "UnauthRoleName": "amplify-empathysurvey-dev-151807-unauthRole",
-      "StackName": "amplify-empathysurvey-dev-151807",
-      "StackId": "arn:aws:cloudformation:us-east-1:856837646583:stack/amplify-empathysurvey-dev-151807/e0da74a0-65c1-11ed-869e-0a2a792f6d77",
-      "AmplifyAppId": "d1n9bqtya6x2o0"
+      "DeploymentBucketName": "amplify-survey-dev-144945-deployment",
+      "UnauthRoleName": "amplify-survey-dev-144945-unauthRole",
+      "StackName": "amplify-survey-dev-144945",
+      "StackId": "arn:aws:cloudformation:us-east-1:856837646583:stack/amplify-survey-dev-144945/14e3b980-6687-11ed-a678-0e9aa6818fbf",
+      "AmplifyAppId": "di2qdqy8v6336"
     },
     "categories": {
-      "function": {
-        "surveyapi": {
-          "deploymentBucketName": "amplify-empathysurvey-dev-151807-deployment",
-          "s3Key": "amplify-builds/surveyapi-4d4e6d6450764f615176-build.zip"
+      "storage": {
+        "contexts": {
+          "tableName": "contexts",
+          "region": "us-east-1",
+          "arn": "arn:aws:dynamodb:us-east-1:856837646583:table/contexts",
+          "partitionKeyName": "id",
+          "partitionKeyType": "N"
+        },
+        "models": {
+          "tableName": "models",
+          "region": "us-east-1",
+          "arn": "arn:aws:dynamodb:us-east-1:856837646583:table/models",
+          "partitionKeyName": "id",
+          "partitionKeyType": "N"
+        },
+        "samples": {
+          "tableName": "samples",
+          "region": "us-east-1",
+          "arn": "arn:aws:dynamodb:us-east-1:856837646583:table/samples",
+          "partitionKeyName": "id",
+          "partitionKeyType": "N"
         }
       },
-      "storage": {
-        "surveysamples": {}
+      "function": {
+        "survey": {
+          "deploymentBucketName": "amplify-survey-dev-144945-deployment",
+          "s3Key": "amplify-builds/survey-72657176776637544450-build.zip"
+        }
       },
       "api": {
         "surveyapi": {}

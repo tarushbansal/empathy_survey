@@ -1,16 +1,6 @@
 export type AmplifyDependentResourcesAttributes = {
-    "storage": {
-        "surveysamples": {
-            "Name": "string",
-            "Arn": "string",
-            "StreamArn": "string",
-            "PartitionKeyName": "string",
-            "PartitionKeyType": "string",
-            "Region": "string"
-        }
-    },
     "function": {
-        "surveyapi": {
+        "survey": {
             "Name": "string",
             "Arn": "string",
             "Region": "string",
