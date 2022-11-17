@@ -15,7 +15,7 @@
       "function": {
         "surveyapi": {
           "deploymentBucketName": "amplify-empathysurvey-dev-151807-deployment",
-          "s3Key": "amplify-builds/surveyapi-62637a73616676716746-build.zip"
+          "s3Key": "amplify-builds/surveyapi-4d4e6d6450764f615176-build.zip"
         }
       },
       "storage": {
