@@ -13,13 +13,6 @@
     },
     "categories": {
       "storage": {
-        "contexts": {
-          "tableName": "contexts",
-          "region": "us-east-1",
-          "arn": "arn:aws:dynamodb:us-east-1:856837646583:table/contexts",
-          "partitionKeyName": "id",
-          "partitionKeyType": "N"
-        },
         "models": {
           "tableName": "models",
           "region": "us-east-1",
@@ -38,7 +31,7 @@
       "function": {
         "survey": {
           "deploymentBucketName": "amplify-survey-dev-144945-deployment",
-          "s3Key": "amplify-builds/survey-72657176776637544450-build.zip"
+          "s3Key": "amplify-builds/survey-324a544b4c6a2b2b4b79-build.zip"
         }
       },
       "api": {

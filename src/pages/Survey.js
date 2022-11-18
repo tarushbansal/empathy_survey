@@ -1,36 +1,70 @@
 import React, { Component } from "react";
-import MyNavbar from "../components/MyNavbar";
 import Intro from "../components/Intro";
-import Container from "react-bootstrap/Container";
 import Scale from "../components/Scale";
 import { Amplify, API } from "aws-amplify";
 import config from "../aws-exports";
+import { useNavigate } from "react-router-dom";
 
 Amplify.configure(config);
 
-export default class Survey extends Component {
+export default function SurveyWrapper(props) {
+  const navigate = useNavigate();
+  return <Survey navigate={navigate} {...props} />;
+}
+
+class Survey extends Component {
   constructor(props) {
     super(props);
-    this.samples = API.get("surveyapi", "/samples")
-      .then(() => {
-        this.ratings = this.samples.map((sample) => ({
-          id: sample.id,
-          ratings: [0, 0, 0],
-        }));
+    this.state = { noSamples: false, samples: [] };
+    API.get("surveyapi", "/samples/1")
+      .then((res) => {
+        let newState = { noSamples: false, samples: res };
+        if (res.length === 0) {
+          newState.noSamples = true;
+        }
+        this.setState(newState, () => {
+          this.ratings = this.state.samples.map((sample) => ({
+            id: sample.id,
+            ratings: [0, 0, 0],
+          }));
+        });
       })
       .catch((err) => console.error(err.response.data));
   }
 
+  onChange(sampleId, ratingIdx, val) {
+    for (let i = 0; i < this.ratings.length; i++) {
+      if (this.ratings[i].id === sampleId) {
+        this.ratings[i].ratings[ratingIdx] = val;
+        break;
+      }
+    }
+  }
+
   submitResponses() {
-    API.post("surveyapi", "/surveyratings", { body: this.ratings });
+    if (this.ratings && this.ratings.length !== 0) {
+      API.post("surveyapi", "/samples/ratings", { body: this.ratings })
+        .then(() =>
+          this.props.navigate("/submit", { state: { status: "SUCCESS" } })
+        )
+        .catch(() =>
+          this.props.navigate("/submit", { state: { status: "ERROR" } })
+        );
+    }
   }
 
   render() {
     return (
-      <Container>
-        <MyNavbar />
+      <div>
+        {this.state.noSamples ? (
+          <div style={{ marginTop: 20, color: "red" }}>
+            NO SAMPLES CURRENTLY LEFT TO SURVEY. PLEASE COME BACK LATER {":))"}
+          </div>
+        ) : (
+          <div></div>
+        )}
         <Intro />
-        {Object.keys(this.samples).map((sample, idx) => (
+        {this.state.samples.map((item, idx) => (
           <div key={idx} style={{ marginTop: 50 }}>
             <p>
               <strong style={{ textDecoration: "underline" }}>
@@ -39,7 +73,7 @@ export default class Survey extends Component {
               <br />
             </p>
             <p>
-              {sample.context.map((utt, idx) => (
+              {item.sample.context.map((utt, idx) => (
                 <span key={idx}>
                   <strong>{idx % 2 === 0 ? "Speaker: " : "Listener: "}</strong>
                   {utt} <br />
@@ -48,21 +82,21 @@ export default class Survey extends Component {
             </p>
             <p>
               <strong>Response A: </strong>
-              {sample.responseA} <br />
+              {item.sample.responseA} <br />
               <strong>Response B: </strong>
-              {sample.responseB}
+              {item.sample.responseB}
             </p>
             <div style={{ marginTop: 40 }}>
               <strong>Which response is better in terms of Empathy?</strong>
-              <Scale onChange={(val) => (this.ratings[sample.id][0] = val)} />
+              <Scale onChange={(val) => this.onChange(item.id, 0, val)} />
             </div>
             <div style={{ marginTop: 40 }}>
               <strong>Which response is better in terms of Relevance?</strong>
-              <Scale onChange={(val) => (this.ratings[sample.id][1] = val)} />
+              <Scale onChange={(val) => this.onChange(item.id, 1, val)} />
             </div>
             <div style={{ marginTop: 40 }}>
               <strong>Which response is better in terms of Fluency?</strong>
-              <Scale onChange={(val) => (this.ratings[sample.id][2] = val)} />
+              <Scale onChange={(val) => this.onChange(item.id, 2, val)} />
             </div>
           </div>
         ))}
@@ -82,7 +116,7 @@ export default class Survey extends Component {
             Submit Responses
           </button>
         </div>
-      </Container>
+      </div>
     );
   }
 }

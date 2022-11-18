@@ -20,27 +20,66 @@ const PENDING = 0;
 const IN_PROGRESS = 1;
 const COMPLETE = 2;
 
+// Set maximum time allowed for survey
+// (beyond which expire sample in progress status)
+const MAX_SURVEY_TIME = 900000; // (15 min)
+
 // declare a new express app
 const app = express();
 app.use(bodyParser.json());
 app.use(awsServerlessExpressMiddleware.eventContext());
 
+const path = "/samples";
+
 // Enable CORS for all methods
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
   next();
 });
+
+function updateStatus(sampleId, statusCode) {
+  dynamodb.update(
+    {
+      TableName: "samples",
+      Key: { id: sampleId },
+      UpdateExpression: "SET #status = :in_progress, #timestamp = :time",
+      ExpressionAttributeNames: {
+        "#status": "status",
+        "#timestamp": "timestamp",
+      },
+      ExpressionAttributeValues: {
+        ":in_progress": statusCode,
+        ":time": Date.now(),
+      },
+    },
+    (err) => {
+      if (err) {
+        console.error(err);
+      }
+    }
+  );
+}
 
 /****************************************
  * HTTP Get method for retrieving samples
  ****************************************/
 
-app.get("/samples", function (req, res) {
+app.get(path + "/:num", function (req, res) {
   let queryParams = {
-    tableName: "samples",
-    ProjectionExpression: "sample",
-    FilterExpression: `status === ${PENDING}`,
+    TableName: "samples",
+    ProjectionExpression: "#id, #sample, #status, #timestamp",
+    FilterExpression: "#status = :pending OR #status = :in_progress",
+    ExpressionAttributeNames: {
+      "#id": "id",
+      "#status": "status",
+      "#sample": "sample",
+      "#timestamp": "timestamp",
+    },
+    ExpressionAttributeValues: {
+      ":pending": PENDING,
+      ":in_progress": IN_PROGRESS,
+    },
   };
 
   dynamodb.scan(queryParams, (err, data) => {
@@ -48,33 +87,20 @@ app.get("/samples", function (req, res) {
       res.statusCode = 500;
       res.json({ error: "Could not load items: " + err });
     } else {
-      data.Items.forEach((item) => {
-        dynamodb.get(
-          { tableName: "contexts", Key: item.id },
-          (err, context) => {
-            if (err) {
-              res.statusCode = 500;
-              res.json({ error: "Could not load items: " + err });
-            } else {
-              item.sample.context = context.data;
-            }
-          }
-        );
-        dynamodb.update(
-          {
-            tableName: "samples",
-            Key: item.id,
-            UpdateExpression: `set status = ${IN_PROGRESS}`,
-          },
-          (err) => {
-            if (err) {
-              res.statusCode = 500;
-              res.json({ error: err, url: req.url, body: req.body });
-            }
-          }
-        );
-      });
-      res.json(data.Items);
+      let resData = [];
+      const maxResLength = parseInt(req.params.num);
+      for (let i = 0; i < data.Items.length; i++) {
+        if (resData.length >= maxResLength) break;
+        if (
+          data.Items[i].status === IN_PROGRESS &&
+          Date.now() - data.Items[i].timestamp <= MAX_SURVEY_TIME
+        ) {
+          continue;
+        }
+        updateStatus(data.Items[i].id, IN_PROGRESS);
+        resData.push(data.Items[i]);
+      }
+      res.json(resData);
     }
   });
 });
@@ -83,17 +109,28 @@ app.get("/samples", function (req, res) {
  * HTTP post method for adding ratings
  *************************************/
 
-app.post("/surveyratings", function (req, res) {
+app.post(path + "/ratings", function (req, res) {
   for (let i = 0; i < req.body.length; i++) {
     const updateItemParams = {
-      tableName: sampleTableName,
-      Key: req.body[i].id,
-      UpdateExpression: `ADD ratings = ${req.body[i].ratings} set status = ${COMPLETE}`,
+      TableName: "samples",
+      Key: { id: req.body[i].id },
+      UpdateExpression:
+        "SET #ratings = :ratings, #status = :complete REMOVE #timestamp",
+      ExpressionAttributeNames: {
+        "#ratings": "ratings",
+        "#status": "status",
+        "#timestamp": "timestamp",
+      },
+      ExpressionAttributeValues: {
+        ":ratings": req.body[i].ratings,
+        ":complete": COMPLETE,
+      },
     };
     dynamodb.update(updateItemParams, (err) => {
       if (err) {
-        res.statusCode = 500;
-        res.json({ error: err, url: req.url, body: req.body });
+        console.error(err);
+      } else {
+        res.json("Successfully posted ratings!");
       }
     });
   }

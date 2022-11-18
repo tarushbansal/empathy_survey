@@ -1,11 +1,5 @@
 {
   "storage": {
-    "contexts": {
-      "service": "DynamoDB",
-      "serviceType": "imported",
-      "providerPlugin": "awscloudformation",
-      "dependsOn": []
-    },
     "models": {
       "service": "DynamoDB",
       "serviceType": "imported",

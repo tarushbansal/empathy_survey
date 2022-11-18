@@ -1,16 +1,21 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Survey from "./pages/Survey";
-import Results from "./pages/Results";
+import Submit from "./pages/Submit";
+import MyNavbar from "./components/MyNavbar";
+import Container from "react-bootstrap/Container";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route exact path="/" element={<Survey />} />
-        <Route path="/results" element={<Results />} />
-      </Routes>
-    </Router>
+    <Container>
+      <MyNavbar />
+      <Router>
+        <Routes>
+          <Route exact path="/" element={<Survey />} />
+          <Route path="/submit" element={<Submit />} />
+        </Routes>
+      </Router>
+    </Container>
   );
 }
 
