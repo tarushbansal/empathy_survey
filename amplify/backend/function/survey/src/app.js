@@ -66,6 +66,7 @@ function updateStatus(sampleId, statusCode) {
  ****************************************/
 
 app.get(path + "/:num", function (req, res) {
+  const maxResLength = parseInt(req.params.num);
   let queryParams = {
     TableName: "samples",
     ProjectionExpression: "#id, #sample, #status, #timestamp",
@@ -80,17 +81,16 @@ app.get(path + "/:num", function (req, res) {
       ":pending": PENDING,
       ":in_progress": IN_PROGRESS,
     },
+    Limit: maxResLength,
   };
 
-  dynamodb.scan(queryParams, (err, data) => {
+  function onScan(err, data) {
     if (err) {
       res.statusCode = 500;
       res.json({ error: "Could not load items: " + err });
     } else {
-      let resData = [];
-      const maxResLength = parseInt(req.params.num);
       for (let i = 0; i < data.Items.length; i++) {
-        if (resData.length >= maxResLength) break;
+        if (resData.length == maxResLength) break;
         if (
           data.Items[i].status === IN_PROGRESS &&
           Date.now() - data.Items[i].timestamp <= MAX_SURVEY_TIME
@@ -100,9 +100,20 @@ app.get(path + "/:num", function (req, res) {
         updateStatus(data.Items[i].id, IN_PROGRESS);
         resData.push(data.Items[i]);
       }
-      res.json(resData);
+
+      if (data.LastEvaluatedKey && resData.length < maxResLength) {
+        queryParams.ExclusiveStartKey = LastEvaluatedKey;
+        dynamodb.scan(queryParams, onScan);
+      } else {
+        res.statusCode = 200;
+        res.json(resData);
+        console.log("Sucessfully scanned and sent samples: ", resData);
+      }
     }
-  });
+  }
+
+  let resData = [];
+  dynamodb.scan(queryParams, onScan);
 });
 
 /*************************************
@@ -125,12 +136,16 @@ app.post(path + "/ratings", function (req, res) {
         ":ratings": req.body[i].ratings,
         ":complete": COMPLETE,
       },
+      ReturnValues: true,
     };
-    dynamodb.update(updateItemParams, (err) => {
+    dynamodb.update(updateItemParams, (err, data) => {
       if (err) {
-        console.error(err);
+        res.statusCode = 500;
+        res.json({ error: "Could not post ratings: " + err });
       } else {
+        res.statusCode = 200;
         res.json("Successfully posted ratings!");
+        console.log("Sample ratings recieved: ", data.Attributes);
       }
     });
   }
