@@ -60,6 +60,12 @@ export default function Intro() {
         a response needs to be relevant in order to get very high scores in
         Empathy but feel free to use your best judgement in ambiguous cases.
       </p>
+      <p>
+        Please also note that generic responses like
+        <span style={{ fontStyle: "italic" }}>"I'm sorry to hear that"</span> or
+        <span style={{ fontStyle: "italic" }}>"Oh no!"</span> while seemingly
+        empathetic and relevant are generic so should be downrated accordingly.
+      </p>
       <p style={{ fontStyle: "italic", marginTop: 50 }}>
         <span style={{ fontWeight: "bold" }}>DISCLAIMER:</span> Although
         generally most dialogue histories and responses are moderately intense,
