@@ -67,7 +67,13 @@ function updateStatus(sampleId, statusCode) {
 
 app.get(path + "/:num", function (req, res) {
   const maxResLength = parseInt(req.params.num);
-  let queryParams = {
+  if (maxResLength > 25) {
+    res.statusCode = 500;
+    res.json({ error: "Only allowed a maximum of 25 samples per request" });
+    return;
+  }
+  let resData = [];
+  let scanParams = {
     TableName: "samples",
     ProjectionExpression: "#id, #sample, #status, #timestamp",
     FilterExpression: "#status = :pending OR #status = :in_progress",
@@ -102,8 +108,8 @@ app.get(path + "/:num", function (req, res) {
       }
 
       if (data.LastEvaluatedKey && resData.length < maxResLength) {
-        queryParams.ExclusiveStartKey = LastEvaluatedKey;
-        dynamodb.scan(queryParams, onScan);
+        scanParams.ExclusiveStartKey = LastEvaluatedKey;
+        dynamodb.scan(scanParams, onScan);
       } else {
         res.statusCode = 200;
         res.json(resData);
@@ -112,7 +118,6 @@ app.get(path + "/:num", function (req, res) {
     }
   }
 
-  let resData = [];
   dynamodb.scan(queryParams, onScan);
 });
 
@@ -121,34 +126,39 @@ app.get(path + "/:num", function (req, res) {
  *************************************/
 
 app.post(path + "/ratings", function (req, res) {
-  for (let i = 0; i < req.body.length; i++) {
-    const updateItemParams = {
-      TableName: "samples",
-      Key: { id: req.body[i].id },
-      UpdateExpression:
-        "SET #ratings = :ratings, #status = :complete REMOVE #timestamp",
-      ExpressionAttributeNames: {
-        "#ratings": "ratings",
-        "#status": "status",
-        "#timestamp": "timestamp",
+  const transactParams = Object.fromEntries(
+    req.body.map((sample) => [
+      "Update",
+      {
+        TableName: "samples",
+        Key: { id: sample.id },
+        UpdateExpression:
+          "SET #ratings = :ratings, #status = :complete REMOVE #timestamp",
+        ExpressionAttributeNames: {
+          "#ratings": "ratings",
+          "#status": "status",
+          "#timestamp": "timestamp",
+        },
+        ExpressionAttributeValues: {
+          ":ratings": sample.ratings,
+          ":complete": COMPLETE,
+        },
       },
-      ExpressionAttributeValues: {
-        ":ratings": req.body[i].ratings,
-        ":complete": COMPLETE,
-      },
-      ReturnValues: true,
-    };
-    dynamodb.update(updateItemParams, (err, data) => {
-      if (err) {
-        res.statusCode = 500;
-        res.json({ error: "Could not post ratings: " + err });
-      } else {
-        res.statusCode = 200;
-        res.json("Successfully posted ratings!");
-        console.log("Sample ratings recieved: ", data.Attributes);
-      }
-    });
-  }
+    ])
+  );
+  dynamodb.transactWrite(transactParams, (err) => {
+    if (err) {
+      res.statusCode = 500;
+      res.json({ error: "Could not post ratings: " + err });
+    } else {
+      res.statusCode = 200;
+      res.json("Successfully posted ratings!");
+      console.log(
+        "Ratings recieved for sample ids: ",
+        req.body.map((sample) => sample.id)
+      );
+    }
+  });
 });
 
 app.listen(3000, function () {
