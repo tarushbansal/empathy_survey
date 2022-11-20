@@ -15,8 +15,8 @@ export default function SurveyWrapper(props) {
 class Survey extends Component {
   constructor(props) {
     super(props);
-    this.state = { noSamples: false, samples: [] };
-    API.get("surveyapi", "/samples/10")
+    this.state = { noSamples: false, getErrorMessage: "", samples: [] };
+    API.get("surveyapi", "/samples/1")
       .then((res) => {
         let newState = { noSamples: false, samples: res };
         if (res.length === 0) {
@@ -29,7 +29,13 @@ class Survey extends Component {
           }));
         });
       })
-      .catch((err) => console.error(err.response.data));
+      .catch((err) => {
+        this.setState({
+          getErrorMessage:
+            "Oops! An error has occured while fetching the survey samples. Please try again later.",
+        });
+        console.error(err.response.data);
+      });
   }
 
   onChange(sampleId, ratingIdx, val) {
@@ -47,9 +53,10 @@ class Survey extends Component {
         .then(() =>
           this.props.navigate("/submit", { state: { status: "SUCCESS" } })
         )
-        .catch(() =>
-          this.props.navigate("/submit", { state: { status: "ERROR" } })
-        );
+        .catch((err) => {
+          console.log(err.response.data);
+          this.props.navigate("/submit", { state: { status: "ERROR" } });
+        });
     }
   }
 
@@ -63,6 +70,9 @@ class Survey extends Component {
         ) : (
           <div></div>
         )}
+        <div style={{ marginTop: 20, color: "red" }}>
+          {this.state.getErrorMessage}
+        </div>
         <Intro />
         {this.state.samples.map((item, idx) => (
           <div key={idx} style={{ marginTop: 50 }}>

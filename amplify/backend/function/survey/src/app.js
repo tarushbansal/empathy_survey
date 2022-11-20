@@ -94,6 +94,7 @@ app.get(path + "/:num", function (req, res) {
     if (err) {
       res.statusCode = 500;
       res.json({ error: "Could not load items: " + err });
+      console.error("An error occured while scanning: ", err);
     } else {
       for (let i = 0; i < data.Items.length; i++) {
         if (resData.length == maxResLength) break;
@@ -108,7 +109,7 @@ app.get(path + "/:num", function (req, res) {
       }
 
       if (data.LastEvaluatedKey && resData.length < maxResLength) {
-        scanParams.ExclusiveStartKey = LastEvaluatedKey;
+        scanParams.ExclusiveStartKey = data.LastEvaluatedKey;
         dynamodb.scan(scanParams, onScan);
       } else {
         res.statusCode = 200;
@@ -118,7 +119,7 @@ app.get(path + "/:num", function (req, res) {
     }
   }
 
-  dynamodb.scan(queryParams, onScan);
+  dynamodb.scan(scanParams, onScan);
 });
 
 /*************************************
@@ -126,10 +127,9 @@ app.get(path + "/:num", function (req, res) {
  *************************************/
 
 app.post(path + "/ratings", function (req, res) {
-  const transactParams = Object.fromEntries(
-    req.body.map((sample) => [
-      "Update",
-      {
+  const transactParams = {
+    TransactItems: req.body.map((sample) => ({
+      Update: {
         TableName: "samples",
         Key: { id: sample.id },
         UpdateExpression:
@@ -144,12 +144,13 @@ app.post(path + "/ratings", function (req, res) {
           ":complete": COMPLETE,
         },
       },
-    ])
-  );
+    })),
+  };
   dynamodb.transactWrite(transactParams, (err) => {
     if (err) {
       res.statusCode = 500;
       res.json({ error: "Could not post ratings: " + err });
+      console.error("An error occurred while posting ratings: ", err);
     } else {
       res.statusCode = 200;
       res.json("Successfully posted ratings!");

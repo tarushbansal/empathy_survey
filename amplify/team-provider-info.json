@@ -24,7 +24,7 @@
       "function": {
         "survey": {
           "deploymentBucketName": "amplify-survey-dev-144945-deployment",
-          "s3Key": "amplify-builds/survey-4d49574e695832797361-build.zip"
+          "s3Key": "amplify-builds/survey-78714a4475614c59426a-build.zip"
         }
       },
       "api": {

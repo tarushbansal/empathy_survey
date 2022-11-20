@@ -9,8 +9,8 @@ export default function Submit() {
     </div>
   ) : (
     <div style={{ marginTop: 20, color: "red" }}>
-      "Oops! There has been an error in submitting your responses. Please try
-      again later."{" "}
+      "Oops! An error occured while submitting your responses. Please try again
+      later."{" "}
     </div>
   );
 }
