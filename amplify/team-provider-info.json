@@ -18,7 +18,7 @@
           "region": "us-east-1",
           "arn": "arn:aws:dynamodb:us-east-1:856837646583:table/samples",
           "partitionKeyName": "id",
-          "partitionKeyType": "N"
+          "partitionKeyType": "S"
         }
       },
       "function": {
