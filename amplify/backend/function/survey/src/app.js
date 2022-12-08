@@ -38,27 +38,11 @@ app.use(function (req, res, next) {
   next();
 });
 
-function updateStatus(sampleId, statusCode) {
-  dynamodb.update(
-    {
-      TableName: "samples",
-      Key: { id: sampleId },
-      UpdateExpression: "SET #status = :in_progress, #timestamp = :time",
-      ExpressionAttributeNames: {
-        "#status": "status",
-        "#timestamp": "timestamp",
-      },
-      ExpressionAttributeValues: {
-        ":in_progress": statusCode,
-        ":time": Date.now(),
-      },
-    },
-    (err) => {
-      if (err) {
-        console.error(err);
-      }
-    }
-  );
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
 }
 
 /****************************************
@@ -72,54 +56,97 @@ app.get(path + "/:num", function (req, res) {
     res.json({ error: "Only allowed a maximum of 25 samples per request" });
     return;
   }
-  let resData = [];
   let scanParams = {
     TableName: "samples",
-    ProjectionExpression: "#id, #sample, #status, #timestamp",
+    ProjectionExpression: "#id, #status, #timestamp",
     FilterExpression: "#status = :pending OR #status = :in_progress",
     ExpressionAttributeNames: {
       "#id": "id",
       "#status": "status",
-      "#sample": "sample",
       "#timestamp": "timestamp",
     },
     ExpressionAttributeValues: {
       ":pending": PENDING,
       ":in_progress": IN_PROGRESS,
     },
-    Limit: maxResLength,
   };
 
-  function onScan(err, data) {
+  dynamodb.scan(scanParams, (err, data) => {
     if (err) {
       res.statusCode = 500;
-      res.json({ error: "Could not load items: " + err });
+      res.json({ error: "Could not retrieve samples: " + err });
       console.error("An error occured while scanning: ", err);
     } else {
+      let filteredIds = [];
       for (let i = 0; i < data.Items.length; i++) {
-        if (resData.length == maxResLength) break;
         if (
           data.Items[i].status === IN_PROGRESS &&
           Date.now() - data.Items[i].timestamp <= MAX_SURVEY_TIME
         ) {
           continue;
         }
-        updateStatus(data.Items[i].id, IN_PROGRESS);
-        resData.push(data.Items[i]);
+        filteredIds.push({ id: data.Items[i].id });
       }
-
-      if (data.LastEvaluatedKey && resData.length < maxResLength) {
-        scanParams.ExclusiveStartKey = data.LastEvaluatedKey;
-        dynamodb.scan(scanParams, onScan);
-      } else {
-        res.statusCode = 200;
-        res.json(resData);
-        console.log("Sucessfully scanned and sent samples: ", resData);
-      }
+      shuffleArray(filteredIds);
+      const batchGetParams = {
+        RequestItems: {
+          samples: {
+            Keys: filteredIds.slice(0, maxResLength),
+            ProjectionExpression: "#id, #sample",
+            ExpressionAttributeNames: { "#id": "id", "#sample": "sample" },
+          },
+        },
+      };
+      dynamodb.batchGet(batchGetParams, (err, data) => {
+        if (err) {
+          res.statusCode = 500;
+          res.json({ error: "Could not retrieve samples: " + err });
+          console.error(
+            "An error occured while fetching random samples: ",
+            err
+          );
+        } else {
+          res.statusCode = 200;
+          res.json(data.Responses.samples);
+          console.log(
+            "Sucessfully scanned and sent samples: ",
+            data.Responses.samples
+          );
+          const transactParams = {
+            TransactItems: data.Responses.samples.map((item) => ({
+              Update: {
+                TableName: "samples",
+                Key: { id: item.id },
+                UpdateExpression:
+                  "SET #status = :in_progress, #timestamp = :time",
+                ExpressionAttributeNames: {
+                  "#status": "status",
+                  "#timestamp": "timestamp",
+                },
+                ExpressionAttributeValues: {
+                  ":in_progress": IN_PROGRESS,
+                  ":time": Date.now(),
+                },
+              },
+            })),
+          };
+          dynamodb.transactWrite(transactParams, (err) => {
+            if (err) {
+              console.error(
+                "An error occured while updating sample status: ",
+                err
+              );
+            } else {
+              console.log(
+                "Updated status to IN_PROGRESS for sample ids: ",
+                data.Responses.samples.map((item) => item.id)
+              );
+            }
+          });
+        }
+      });
     }
-  }
-
-  dynamodb.scan(scanParams, onScan);
+  });
 });
 
 /*************************************
