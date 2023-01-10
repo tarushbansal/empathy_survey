@@ -5,7 +5,7 @@ export default class Scale extends Component {
   constructor(props) {
     super(props);
     this.likertOptions = {
-      question: "",
+      id: props.id,
       responses: [
         { value: -2, text: "Strongly Response A" },
         { value: -1, text: "Response A" },

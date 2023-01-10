@@ -63,7 +63,7 @@ export default function Intro() {
       <p>
         Please also note that generic responses like
         <span style={{ fontStyle: "italic" }}>"I'm sorry to hear that"</span> or
-        <span style={{ fontStyle: "italic" }}>"Oh no!"</span> while seemingly
+        <span style={{ fontStyle: "italic" }}> "Oh no!"</span> while seemingly
         empathetic and relevant are generic so should be downrated accordingly.
       </p>
       <p style={{ fontStyle: "italic", marginTop: 50 }}>

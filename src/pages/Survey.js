@@ -98,15 +98,24 @@ class Survey extends Component {
             </p>
             <div style={{ marginTop: 40 }}>
               <strong>Which response is better in terms of Empathy?</strong>
-              <Scale onChange={(val) => this.onChange(item.id, 0, val)} />
+              <Scale
+                id={item.id + "0"}
+                onChange={(val) => this.onChange(item.id, 0, val)}
+              />
             </div>
             <div style={{ marginTop: 40 }}>
               <strong>Which response is better in terms of Relevance?</strong>
-              <Scale onChange={(val) => this.onChange(item.id, 1, val)} />
+              <Scale
+                id={item.id + "1"}
+                onChange={(val) => this.onChange(item.id, 1, val)}
+              />
             </div>
             <div style={{ marginTop: 40 }}>
               <strong>Which response is better in terms of Fluency?</strong>
-              <Scale onChange={(val) => this.onChange(item.id, 2, val)} />
+              <Scale
+                id={item.id + "2"}
+                onChange={(val) => this.onChange(item.id, 2, val)}
+              />
             </div>
           </div>
         ))}
