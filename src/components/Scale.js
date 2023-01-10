@@ -7,11 +7,11 @@ export default class Scale extends Component {
     this.likertOptions = {
       id: props.id,
       responses: [
-        { value: -2, text: "Strongly Response A" },
-        { value: -1, text: "Response A" },
-        { value: 0, text: "No preference", checked: true },
-        { value: 1, text: "Response B" },
-        { value: 2, text: "Strongly Response B" },
+        { value: -2, text: "Strongly A" },
+        { value: -1, text: "A" },
+        { value: 0, text: "Neutral", checked: true },
+        { value: 1, text: "B" },
+        { value: 2, text: "Strongly B" },
       ],
       onChange: (selection) => props.onChange(selection.value),
     };
