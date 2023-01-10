@@ -13,20 +13,6 @@
     },
     "categories": {
       "storage": {
-        "region": {
-          "0": "u",
-          "1": "s",
-          "2": "-",
-          "3": "e",
-          "4": "a",
-          "5": "s",
-          "6": "t",
-          "7": "-",
-          "8": "1"
-        },
-        "tables": {
-          "samples": "samples"
-        },
         "samples": {
           "tableName": "samples",
           "region": "us-east-1",
