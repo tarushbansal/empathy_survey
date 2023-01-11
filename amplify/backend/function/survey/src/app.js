@@ -106,11 +106,9 @@ app.get(path + "/:num", function (req, res) {
             err
           );
         } else {
-          res.statusCode = 200;
-          res.json(data.Responses.samples);
           console.log(
-            "Sucessfully scanned and sent samples: ",
-            data.Responses.samples
+            "Successfully scanned samples with ids: ",
+            data.Responses.samples.map((item) => item.id)
           );
           const transactParams = {
             TransactItems: data.Responses.samples.map((item) => ({
@@ -138,7 +136,13 @@ app.get(path + "/:num", function (req, res) {
               );
             } else {
               console.log(
-                "Updated status to IN_PROGRESS for sample ids: ",
+                "Updated status to IN_PROGRESS for samples with ids: ",
+                data.Responses.samples.map((item) => item.id)
+              );
+              res.statusCode = 200;
+              res.json(data.Responses.samples);
+              console.log(
+                "Successfully sent samples with ids: ",
                 data.Responses.samples.map((item) => item.id)
               );
             }
