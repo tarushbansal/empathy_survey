@@ -107,7 +107,7 @@ app.get(path + "/:num", function (req, res) {
           );
         } else {
           console.log(
-            "Successfully scanned samples with ids: ",
+            "Successfully retrieved samples with ids: ",
             data.Responses.samples.map((item) => item.id)
           );
           const transactParams = {
