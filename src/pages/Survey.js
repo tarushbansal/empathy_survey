@@ -16,7 +16,7 @@ class Survey extends Component {
   constructor(props) {
     super(props);
     this.state = { noSamples: false, getErrorMessage: "", samples: [] };
-    API.get("surveyapi", "/samples/10")
+    API.get("surveyapi", "/samples/5")
       .then((res) => {
         let newState = { noSamples: false, samples: res };
         if (res.length === 0) {
