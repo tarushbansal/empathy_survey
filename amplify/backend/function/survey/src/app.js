@@ -22,7 +22,7 @@ const COMPLETE = 2;
 
 // Set maximum time allowed for survey
 // (beyond which expire sample in progress status)
-const MAX_SURVEY_TIME = 900000; // (15 min)
+const MAX_SURVEY_TIME = 1205000;
 
 // declare a new express app
 const app = express();
@@ -130,6 +130,8 @@ app.get(path + "/:num", function (req, res) {
           };
           dynamodb.transactWrite(transactParams, (err) => {
             if (err) {
+              res.statusCode = 500;
+              res.json({ error: "Could not update sample status: " + err });
               console.error(
                 "An error occured while updating sample status: ",
                 err

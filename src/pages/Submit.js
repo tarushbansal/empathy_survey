@@ -9,8 +9,9 @@ export default function Submit() {
     </div>
   ) : (
     <div style={{ marginTop: 20, color: "red" }}>
-      "Oops! An error occured while submitting your responses. Please try again
-      later."{" "}
+      {state.status === "ERROR"
+        ? "Oops! An error occured while submitting your responses. Please try again."
+        : "Oops! Your survey have timed out. Please reload the page."}
     </div>
   );
 }

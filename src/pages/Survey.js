@@ -28,6 +28,9 @@ class Survey extends Component {
             ratings: [0, 0, 0],
           }));
         });
+        setTimeout(() => {
+          props.navigate("/submit", { state: { status: "TIMEOUT" } });
+        }, 1200000);
       })
       .catch((err) => {
         this.setState({
