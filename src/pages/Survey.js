@@ -7,6 +7,18 @@ import { useNavigate } from "react-router-dom";
 
 Amplify.configure(config);
 
+const setExactTimeout = function (callback, duration, resolution) {
+  var start = new Date().getTime();
+  var timeout = setInterval(function () {
+    if (new Date().getTime() - start > duration) {
+      callback();
+      clearInterval(timeout);
+    }
+  }, resolution);
+
+  return timeout;
+};
+
 export default function SurveyWrapper(props) {
   const navigate = useNavigate();
   return <Survey navigate={navigate} {...props} />;
@@ -15,7 +27,12 @@ export default function SurveyWrapper(props) {
 class Survey extends Component {
   constructor(props) {
     super(props);
-    this.state = { noSamples: false, getErrorMessage: "", samples: [] };
+    this.state = {
+      noSamples: false,
+      timeout: false,
+      getErrorMessage: "",
+      samples: [],
+    };
     API.get("surveyapi", "/samples/5")
       .then((res) => {
         let newState = { noSamples: false, samples: res };
@@ -28,9 +45,13 @@ class Survey extends Component {
             ratings: [0, 0, 0],
           }));
         });
-        setTimeout(() => {
-          props.navigate("/submit", { state: { status: "TIMEOUT" } });
-        }, 1200000);
+        setExactTimeout(
+          () => {
+            this.setState({ timeout: true });
+          },
+          1200000,
+          1000
+        );
       })
       .catch((err) => {
         this.setState({
@@ -64,14 +85,18 @@ class Survey extends Component {
   }
 
   render() {
-    return (
+    return this.state.timeout ? (
+      <div style={{ marginTop: 20, color: "red" }}>
+        Oops! Your survey have timed out. Please reload the page.
+      </div>
+    ) : (
       <div>
         {this.state.noSamples ? (
           <div style={{ marginTop: 20, color: "red" }}>
             NO SAMPLES CURRENTLY LEFT TO SURVEY. PLEASE COME BACK LATER {":))"}
           </div>
         ) : (
-          <div></div>
+          <></>
         )}
         <div style={{ marginTop: 20, color: "red" }}>
           {this.state.getErrorMessage}

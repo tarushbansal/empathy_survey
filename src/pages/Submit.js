@@ -5,13 +5,12 @@ export default function Submit() {
   return state.status === "SUCCESS" ? (
     <div style={{ marginTop: 20, color: "green" }}>
       "Your responses have been successfully recorded. Thank you for taking this
-      survey!"{" "}
+      survey!"
     </div>
   ) : (
     <div style={{ marginTop: 20, color: "red" }}>
-      {state.status === "ERROR"
-        ? "Oops! An error occured while submitting your responses. Please try again."
-        : "Oops! Your survey have timed out. Please reload the page."}
+      "Oops! An error occured while submitting your responses. Please try
+      again."
     </div>
   );
 }
