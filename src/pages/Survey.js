@@ -31,6 +31,7 @@ class Survey extends Component {
       noSamples: false,
       timeout: false,
       getErrorMessage: "",
+      submitButton: "Submit",
       samples: [],
     };
     API.get("surveyapi", "/samples/5")
@@ -72,15 +73,21 @@ class Survey extends Component {
   }
 
   submitResponses() {
-    if (this.ratings && this.ratings.length !== 0) {
-      API.post("surveyapi", "/samples/ratings", { body: this.ratings })
-        .then(() =>
-          this.props.navigate("/submit", { state: { status: "SUCCESS" } })
-        )
-        .catch((err) => {
-          console.log(err.response.data);
-          this.props.navigate("/submit", { state: { status: "ERROR" } });
-        });
+    if (
+      this.state.submitButton === "Submit" &&
+      this.ratings &&
+      this.ratings.length !== 0
+    ) {
+      this.setState({ submitButton: "Please wait..." }, () => {
+        API.post("surveyapi", "/samples/ratings", { body: this.ratings })
+          .then(() =>
+            this.props.navigate("/submit", { state: { status: "SUCCESS" } })
+          )
+          .catch((err) => {
+            console.log(err.response.data);
+            this.props.navigate("/submit", { state: { status: "ERROR" } });
+          });
+      });
     }
   }
 
@@ -160,7 +167,7 @@ class Survey extends Component {
             className="btn btn-dark"
             onClick={this.submitResponses.bind(this)}
           >
-            Submit Responses
+            {this.state.submitButton}
           </button>
         </div>
       </div>
