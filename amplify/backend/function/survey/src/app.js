@@ -87,6 +87,12 @@ app.get(path + "/:num", function (req, res) {
         }
         filteredIds.push({ id: data.Items[i].id });
       }
+      if (filteredIds.length == 0) {
+        res.statusCode = 200;
+        res.json([]);
+        console.log("No unrated samples left!");
+        return;
+      }
       shuffleArray(filteredIds);
       const batchGetParams = {
         RequestItems: {
